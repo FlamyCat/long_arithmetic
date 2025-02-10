@@ -20,13 +20,13 @@ public:
     BigDecimal(const BigDecimal& other) = default;
 
     // Math operators
-    BigDecimal& operator+(BigDecimal& other);
+    BigDecimal operator+(BigDecimal& other);
 
-    BigDecimal& operator-(BigDecimal& other);
+    BigDecimal operator-(BigDecimal& other);
 
-    BigDecimal& operator*(BigDecimal& other);
+    BigDecimal operator*(BigDecimal& other);
 
-    BigDecimal& operator/(BigDecimal& other);
+    BigDecimal operator/(BigDecimal& other);
 
     BigDecimal& operator+=(BigDecimal& other);
 
