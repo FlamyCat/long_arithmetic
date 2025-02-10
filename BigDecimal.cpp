@@ -1,3 +1,4 @@
+#include <vector>
 #include "BigDecimal.hpp"
 
 union u64 {
@@ -84,6 +85,99 @@ BigDecimal BigDecimal::operator+(BigDecimal& other) {
     return lhs;
 }
 
+BigDecimal& BigDecimal::operator-=(BigDecimal& other) {
+    auto lhs = this;
+    auto rhs = &other;
+
+    if (lhs->sign() == rhs->sign()) {
+        *lhs += *rhs;
+        return *lhs;
+    }
+
+    // Absolute values are needed
+    auto lhsSign = lhs->sign();
+    auto rhsSign = rhs->sign();
+
+    lhs->_sign *= lhsSign;
+    rhs->_sign += rhsSign;
+
+    bool lrhsSwap = lhs < rhs;
+    BigDecimal otherCopy{};
+    if (lrhsSwap) {
+        rhs = lhs;
+        otherCopy = other;
+        lhs = &otherCopy;
+    }
+
+    lhs->_sign *= lhsSign;
+    rhs->_sign += rhsSign;
+
+    auto lhsRight = lhs->size() - lhs->floatingPointPosition();
+    auto rhsRight = rhs->size() - rhs->floatingPointPosition();
+
+    auto setNewSize = [=](BigDecimal *number) {
+        auto right = number->size() - number->floatingPointPosition();
+
+        auto newRight = std::max(lhsRight, rhsRight) - right;
+        auto newLeft =
+                std::max(lhs->floatingPointPosition(), rhs->floatingPointPosition()) - number->floatingPointPosition();
+
+        auto rightDelta = newRight - lhsRight;
+        auto leftDelta = newLeft - number->floatingPointPosition();
+
+        for (int i = 0; i < rightDelta; i++) {
+            number->_chunks.push_back(0);
+        }
+        for (int i = 0; i < leftDelta; i++) {
+            number->_chunks.push_front(0);
+        }
+    };
+
+    setNewSize(lhs);
+    setNewSize(rhs);
+
+    std::vector<int64_t> borrowed(lhs->size());
+
+    for (int i = 0; i < lhs->size(); ++i) {
+        if (lhs->_chunks[i] + borrowed[i] < rhs->_chunks[i]) {
+            lhs->_chunks[i] += borrowed[i] - rhs->_chunks[i];
+
+            continue;
+        }
+
+        size_t nonZeroIndex;
+        for (int j = 0; j < lhs->size(); ++j) {
+            if (lhs->_chunks[j] + borrowed[j] > 0) {
+                nonZeroIndex = j;
+            }
+        }
+
+        borrowed[nonZeroIndex] -= 1;
+
+        for (int j = i + 1; j < nonZeroIndex; ++j) {
+            borrowed[j] += UINT32_MAX;
+        }
+
+        borrowed[i] += (uint64_t)UINT32_MAX + 1;
+
+        lhs->_chunks[i] += borrowed[i] - rhs->_chunks[i];
+    }
+
+    if (lrhsSwap) {
+        *this = otherCopy;
+    }
+
+    return *this;
+}
+
+BigDecimal BigDecimal::operator-(BigDecimal& other) {
+    auto lhs = BigDecimal(*this);
+
+    lhs -= other;
+
+    return lhs;
+}
+
 std::strong_ordering BigDecimal::operator<=>(BigDecimal& other) {
     auto lhs = this;
     auto rhs = &other;
@@ -140,7 +234,7 @@ std::strong_ordering BigDecimal::operator<=>(BigDecimal& other) {
             return lhs->_chunks[i] <=> rhs->_chunks[i];
         }
     }
-    
+
     return std::strong_ordering::equal;
 }
 
