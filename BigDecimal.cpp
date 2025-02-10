@@ -49,7 +49,6 @@ BigDecimal& BigDecimal::operator+=(BigDecimal& other) {
 
         for (int i = 0; i < rightDelta; i++) {
             number->_chunks.push_back(0);
-
         }
         for (int i = 0; i < leftDelta; i++) {
             number->_chunks.push_front(0);
@@ -85,6 +84,91 @@ BigDecimal BigDecimal::operator+(BigDecimal& other) {
     return lhs;
 }
 
+std::strong_ordering BigDecimal::operator<=>(BigDecimal& other) {
+    auto lhs = this;
+    auto rhs = &other;
+
+    lhs->trim();
+    rhs->trim();
+
+    //region Zero size related comparison
+    if (lhs->size() == 0 && rhs->size() != 0) {
+        return rhs->sign() > 0 ? std::strong_ordering::less : std::strong_ordering::greater;
+    }
+
+    if (lhs->size() != 0 && rhs->size() == 0) {
+        return lhs->sign() < 0 ? std::strong_ordering::less : std::strong_ordering::greater;
+    }
+
+    if (lhs->size() == 0 && rhs->size() == 0) {
+        return std::strong_ordering::equal;
+    }
+    //endregion
+
+    //region Sign related comparison
+    if (lhs->sign() > 0 && rhs->sign() < 0) {
+        return std::strong_ordering::greater;
+    }
+
+    if (lhs->sign() < 0 && rhs->sign() > 0) {
+        return std::strong_ordering::less;
+    }
+    //endregion
+
+    //region Different abs value len comparison
+    if (lhs->intPartLen() > rhs->intPartLen()) {
+        return lhs->sign() <=> 0;
+    }
+
+    if (lhs->intPartLen() < rhs->intPartLen()) {
+        return rhs->sign() <=> 0;
+    }
+    //endregion
+
+    //region Floating point position comparison
+    if (lhs->floatingPointPosition() < rhs->floatingPointPosition()) {
+        return std::strong_ordering::greater;
+    }
+
+    if (lhs->floatingPointPosition() > rhs->floatingPointPosition()) {
+        return std::strong_ordering::less;
+    }
+    //endregion
+
+    for (auto i = lhs->size(); i > 0; i++) {
+        if (lhs->_chunks[i] != rhs->_chunks[i]) {
+            return lhs->_chunks[i] <=> rhs->_chunks[i];
+        }
+    }
+    
+    return std::strong_ordering::equal;
+}
+
 size_t BigDecimal::intPartLen() {
     return this->size() - floatingPointPosition();
+}
+
+bool BigDecimal::operator<=(BigDecimal& other) {
+    auto ordering = *this <=> other;
+    return (ordering == std::strong_ordering::equal) || (ordering == std::strong_ordering::less);
+}
+
+bool BigDecimal::operator>=(BigDecimal& other) {
+    auto ordering = *this <=> other;
+    return (ordering == std::strong_ordering::equal) || (ordering == std::strong_ordering::greater);
+}
+
+bool BigDecimal::operator<(BigDecimal& other) {
+    auto ordering = *this <=> other;
+    return ordering == std::strong_ordering::less;
+}
+
+bool BigDecimal::operator>(BigDecimal& other) {
+    auto ordering = *this <=> other;
+    return ordering == std::strong_ordering::greater;
+}
+
+bool BigDecimal::operator==(BigDecimal& other) {
+    auto ordering = *this <=> other;
+    return ordering == std::strong_ordering::equal;
 }
