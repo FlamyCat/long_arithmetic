@@ -36,7 +36,7 @@ public:
     BigDecimal& operator/=(BigDecimal& other);
 
     // Assignment
-    BigDecimal& operator=(BigDecimal& other);
+    BigDecimal& operator=(BigDecimal& other) = default;
 
     // Comparison operators
     std::strong_ordering operator<=>(BigDecimal& other);
