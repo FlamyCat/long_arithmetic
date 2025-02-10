@@ -6,7 +6,7 @@ union u64 {
 };
 
 void BigDecimal::trim() {
-    while (this->_chunks.back() == 0) {
+    while (this->_chunks.back() == 0 && this->size() > 0) {
         this->_chunks.pop_back();
     }
 }
