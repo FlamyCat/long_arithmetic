@@ -14,6 +14,8 @@ class BigDecimal {
 
 public:
     // Constructors
+    BigDecimal();
+
     BigDecimal(std::string& s);
 
     BigDecimal(BigDecimal& other) = default;

@@ -172,3 +172,9 @@ bool BigDecimal::operator==(BigDecimal& other) {
     auto ordering = *this <=> other;
     return ordering == std::strong_ordering::equal;
 }
+
+BigDecimal::BigDecimal() {
+    this->_chunks = std::deque<uint32_t>();
+    this->_sign = 1;
+    this->_floatingPointPosition = 0;
+}
