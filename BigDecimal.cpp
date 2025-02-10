@@ -84,3 +84,7 @@ BigDecimal BigDecimal::operator+(BigDecimal& other) {
 
     return lhs;
 }
+
+size_t BigDecimal::intPartLen() {
+    return this->size() - floatingPointPosition();
+}

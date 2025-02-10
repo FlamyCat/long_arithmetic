@@ -62,6 +62,8 @@ public:
     size_t size();
     size_t floatingPointPosition() const;
 
+    size_t intPartLen();
+
     ~BigDecimal() = default;
 };
 
