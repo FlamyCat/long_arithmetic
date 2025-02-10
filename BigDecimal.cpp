@@ -272,3 +272,7 @@ BigDecimal::BigDecimal() {
     this->_sign = 1;
     this->_floatingPointPosition = 0;
 }
+
+void BigDecimal::setPrecision(size_t newPrecision) {
+    this->_floatingPointPosition = newPrecision;
+}
