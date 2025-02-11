@@ -7,6 +7,8 @@
 #include <compare>
 #include <cstdint>
 
+static constexpr const auto chunkSize = 32;
+
 class BigDecimal {
     std::deque<uint32_t> _chunks;
     size_t _floatingPointPosition;

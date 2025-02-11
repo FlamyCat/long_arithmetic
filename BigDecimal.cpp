@@ -290,15 +290,15 @@ BigDecimal::BigDecimal(std::string &s) {
 
     if (floatingPointPosition != std::string::npos) {
         auto left = floatingPointPosition;
-        if (left % 32 != 0) {
-            for (int i = 0; i < 32 - left % 32; ++i) {
+        if (left % chunkSize != 0) {
+            for (int i = 0; i < chunkSize - left % chunkSize; ++i) {
                 sd.push_front('0');
             }
         }
 
         auto right = sd.size() - floatingPointPosition;
-        if (right % 32 != 0) {
-            for (int i = 0; i < 32 - right % 32; ++i) {
+        if (right % chunkSize != 0) {
+            for (int i = 0; i < chunkSize - right % chunkSize; ++i) {
                 sd.push_back('0');
             }
         }
@@ -306,7 +306,7 @@ BigDecimal::BigDecimal(std::string &s) {
         this->_chunks = std::deque<uint32_t>();
 
         auto leftBorder = sd.rbegin();
-        auto rightBorder = sd.rbegin() + 32;
+        auto rightBorder = sd.rbegin() + chunkSize;
 
         while (rightBorder < sd.rend()) {
             this->_chunks.push_back(std::stoul(std::string{leftBorder, rightBorder}));
@@ -316,14 +316,14 @@ BigDecimal::BigDecimal(std::string &s) {
     } else {
         this->_floatingPointPosition = 0;
 
-        if (sd.size() % 32 != 0) {
-            for (int i = 0; i < 32 - sd.size() % 32; ++i) {
+        if (sd.size() % chunkSize != 0) {
+            for (int i = 0; i < chunkSize - sd.size() % chunkSize; ++i) {
                 sd.push_back('0');
             }
         }
 
         auto leftBorder = sd.rbegin();
-        auto rightBorder = sd.rbegin() + 32;
+        auto rightBorder = sd.rbegin() + chunkSize;
 
         while (rightBorder < sd.rend()) {
             this->_chunks.push_back(std::stoul(std::string{leftBorder, rightBorder}));
