@@ -14,6 +14,8 @@ class BigDecimal {
     size_t _floatingPointPosition;
     signed char _sign;
 
+    size_t numberOfBits();
+
 public:
     // Constructors
     BigDecimal();
@@ -54,6 +56,13 @@ public:
     bool operator>(BigDecimal &other);
 
     bool operator==(BigDecimal &other);
+
+    // Bits manipulation
+    uint32_t getBit(size_t index);
+
+    void setBit(size_t index, uint32_t value);
+
+    void pushBitFront(uint32_t bitValue);
 
     // Methods
     void setPrecision(size_t newPrecision);

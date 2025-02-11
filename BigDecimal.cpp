@@ -1,5 +1,6 @@
 #include <vector>
 #include "BigDecimal.hpp"
+#include <stdexcept>
 
 union u64 {
     uint64_t value;
@@ -416,6 +417,90 @@ std::string BigDecimal::toBinary(long double d) {
            + std::string{x.begin(), x.end()}
            + "."
            + std::string{y.begin(), y.end()};
+}
+
+BigDecimal BigDecimal::operator/(BigDecimal &other) {
+    auto lhs = this;
+    auto rhs = &other;
+
+    lhs->trim();
+    rhs->trim();
+
+    auto zero = BigDecimal{};
+    if (*rhs == zero) {
+        throw std::invalid_argument("Divisor must not be zero");
+    }
+
+    BigDecimal remainder{};
+    BigDecimal result{};
+
+    const auto numberOfBitsInLhs = lhs->numberOfBits();
+
+    for (int64_t i = numberOfBitsInLhs - 1; i >= 0; ++i) {
+        remainder.pushBitFront(lhs->getBit(i));
+
+        if (remainder >= *rhs) {
+            remainder -= *rhs;
+            remainder.trim();
+            result.pushBitFront(1);
+        }
+
+        result.pushBitFront(0);
+    }
+
+    result.trim();
+
+    auto deltaFpp = (int64_t)lhs->floatingPointPosition() - (int64_t)rhs->floatingPointPosition();
+    if (deltaFpp < 0) {
+        for (int i = 0; i < std::abs(deltaFpp); ++i) {
+            result._chunks.push_back(0);
+        }
+
+        deltaFpp = 0;
+    }
+
+    result._floatingPointPosition = deltaFpp;
+    result._sign = lhs->sign() * rhs->sign();
+
+    return result;
+}
+
+uint32_t BigDecimal::getBit(size_t index) {
+    auto chunkIndex = index / chunkSize;
+    auto bitIndex = index % 32;
+
+    return ((1 << bitIndex) & this->_chunks[chunkIndex]) >> bitIndex;
+}
+
+void BigDecimal::pushBitFront(uint32_t bitValue) {
+    // We want to keep the overflow. Thus, we add another chunk when overflow occurs
+    if (this->_chunks.back() & (1 << chunkSize - 1)) {
+        this->_chunks.push_back(0);
+    }
+
+    for (auto i = this->numberOfBits(); i > 0; i--) {
+        this->setBit(i - 1, this->getBit(i - 2));
+    }
+}
+
+size_t BigDecimal::numberOfBits() {
+    return this->size() * chunkSize;
+}
+
+void BigDecimal::setBit(size_t index, uint32_t value) {
+    auto chunkIndex = index / chunkSize;
+    auto bitIndex = index % 32;
+
+    auto mask = 1 << bitIndex;
+
+    this->_chunks[chunkIndex] |= mask;
+}
+
+BigDecimal &BigDecimal::operator/=(BigDecimal &other) {
+    auto t = *this / other;
+    *this = t;
+
+    return *this;
 }
 
 BigDecimal operator ""_longnum(long double number) {
