@@ -58,7 +58,7 @@ public:
     bool operator==(BigDecimal &other);
 
     // Bits manipulation
-    uint32_t getBit(size_t index);
+    [[nodiscard]] uint32_t getBit(size_t index);
 
     void setBit(size_t index, uint32_t value);
 
@@ -70,15 +70,15 @@ public:
     void trim();
 
     // Accessors
-    signed char sign() const;
+    [[nodiscard]] signed char sign() const;
 
-    size_t size();
+    [[nodiscard]] size_t size();
 
-    size_t floatingPointPosition() const;
+    [[nodiscard]] size_t floatingPointPosition() const;
 
-    size_t intPartLen();
+    [[nodiscard]] size_t intPartLen();
 
-    static std::string toBinary(long double d);
+    [[nodiscard]] static std::string toBinary(long double d);
 
     ~BigDecimal() = default;
 };
