@@ -2,8 +2,8 @@
 #include "BigDecimal.hpp"
 
 union u64 {
-    uint64_t number;
-    uint32_t buf[2];
+    uint64_t value;
+    uint32_t chunks[2];
 };
 
 void BigDecimal::trim() {
@@ -63,11 +63,11 @@ BigDecimal& BigDecimal::operator+=(BigDecimal& other) {
 
     for (int i = 0; i < lhs->size(); ++i) {
         u64 t{};
-        t.number = lhs->_chunks[i];
-        t.number += rhs->_chunks[i] + overflow;
+        t.value = lhs->_chunks[i];
+        t.value += rhs->_chunks[i] + overflow;
 
-        overflow = t.buf[1];
-        lhs->_chunks[i] = t.buf[0];
+        overflow = t.chunks[1];
+        lhs->_chunks[i] = t.chunks[0];
     }
 
     if (overflow != 0) {
@@ -329,4 +329,60 @@ BigDecimal::BigDecimal(std::string& s) {
             this->_chunks.push_back(std::stoul(std::string{leftBorder, rightBorder}));
         }
     }
+}
+
+BigDecimal& BigDecimal::operator*=(BigDecimal& other)
+{
+    BigDecimal totalResult{};
+
+    auto lhs = this;
+    auto rhs = &other;
+
+    // At this point I'm using totalResult as zero
+    if (*lhs == totalResult || *rhs == totalResult)
+    {
+        *this = totalResult;
+        return *this;
+    }
+
+    lhs->trim();
+    rhs->trim();
+
+    for (int i = 0; i < rhs->size(); ++i)
+    {
+        uint32_t overflow = 0;
+        BigDecimal tempResult{*lhs};
+        for (int j = 0; j < lhs->size(); ++j)
+        {
+            u64 t;
+            t.value = tempResult._chunks[j];
+            tempResult._chunks[i] = t.chunks[0] + overflow;
+            overflow = t.chunks[1];
+        }
+
+        if (overflow != 0)
+        {
+            tempResult._chunks.push_back(overflow);
+        }
+
+        for (int j = 0; j < i; ++j)
+        {
+            tempResult._chunks.push_front(0);
+        }
+
+        totalResult += tempResult;
+    }
+
+    totalResult._sign = lhs->sign() * rhs->sign();
+    totalResult._floatingPointPosition = lhs->floatingPointPosition() + rhs->floatingPointPosition();
+
+    *this = totalResult;
+    return *this;
+}
+
+BigDecimal BigDecimal::operator*(BigDecimal& other)
+{
+    auto result = BigDecimal{*this};
+    result *= other;
+    return result;
 }
