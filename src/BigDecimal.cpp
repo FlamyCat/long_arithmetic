@@ -275,6 +275,22 @@ BigDecimal::BigDecimal() {
 }
 
 void BigDecimal::setPrecision(size_t newPrecision) {
+    if (newPrecision == this->floatingPointPosition()) {
+        return;
+    }
+
+    if (newPrecision < this->floatingPointPosition()) {
+        for (int i = 0; i < floatingPointPosition() - newPrecision; ++i) {
+            this->_chunks.pop_front();
+        }
+
+        return;
+    }
+
+    for (int i = 0; i < newPrecision - this->floatingPointPosition(); ++i) {
+        this->_chunks.push_front(0);
+    }
+
     this->_floatingPointPosition = newPrecision;
 }
 
