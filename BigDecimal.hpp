@@ -16,42 +16,42 @@ public:
     // Constructors
     BigDecimal();
 
-    BigDecimal(std::string& s);
+    BigDecimal(std::string &s);
 
-    BigDecimal(BigDecimal& other) = default;
+    BigDecimal(BigDecimal &other) = default;
 
     // Math operators
-    BigDecimal operator+(BigDecimal& other);
+    BigDecimal operator+(BigDecimal &other);
 
-    BigDecimal operator-(BigDecimal& other);
+    BigDecimal operator-(BigDecimal &other);
 
-    BigDecimal operator*(BigDecimal& other);
+    BigDecimal operator*(BigDecimal &other);
 
-    BigDecimal operator/(BigDecimal& other);
+    BigDecimal operator/(BigDecimal &other);
 
-    BigDecimal& operator+=(BigDecimal& other);
+    BigDecimal &operator+=(BigDecimal &other);
 
-    BigDecimal& operator-=(BigDecimal& other);
+    BigDecimal &operator-=(BigDecimal &other);
 
-    BigDecimal& operator*=(BigDecimal& other);
+    BigDecimal &operator*=(BigDecimal &other);
 
-    BigDecimal& operator/=(BigDecimal& other);
+    BigDecimal &operator/=(BigDecimal &other);
 
     // Assignment
-    BigDecimal& operator=(BigDecimal& other) = default;
+    BigDecimal &operator=(BigDecimal &other) = default;
 
     // Comparison operators
-    std::strong_ordering operator<=>(BigDecimal& other);
+    std::strong_ordering operator<=>(BigDecimal &other);
 
-    bool operator<=(BigDecimal& other);
+    bool operator<=(BigDecimal &other);
 
-    bool operator>=(BigDecimal& other);
+    bool operator>=(BigDecimal &other);
 
-    bool operator<(BigDecimal& other);
+    bool operator<(BigDecimal &other);
 
-    bool operator>(BigDecimal& other);
+    bool operator>(BigDecimal &other);
 
-    bool operator==(BigDecimal& other);
+    bool operator==(BigDecimal &other);
 
     // Methods
     void setPrecision(size_t newPrecision);
@@ -67,9 +67,11 @@ public:
 
     size_t intPartLen();
 
+    static std::string toBinary(long double d);
+
     ~BigDecimal() = default;
 };
 
-BigDecimal& operator ""_longnum(long double number);
+BigDecimal operator ""_longnum(long double number);
 
 #endif //LONG_ARITHMETIC_BIGDECIMAL_HPP
