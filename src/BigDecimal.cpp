@@ -473,7 +473,7 @@ BigDecimal BigDecimal::operator/(BigDecimal &other) {
 
     result.trim();
 
-    auto deltaFpp = (int64_t)lhs->floatingPointPosition() - (int64_t)rhs->floatingPointPosition();
+    auto deltaFpp = (int64_t) lhs->floatingPointPosition() - (int64_t) rhs->floatingPointPosition();
     if (deltaFpp < 0) {
         for (int i = 0; i < std::abs(deltaFpp); ++i) {
             result._chunks.push_back(0);
