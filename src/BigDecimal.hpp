@@ -82,7 +82,7 @@ public:
 
     [[nodiscard]] static std::string toBinary(long double d);
 
-    [[nodiscard]] const std::deque<uint32_t>& digits();
+    [[nodiscard]] const std::deque<uint32_t>& chunks();
 
     ~BigDecimal() = default;
 };

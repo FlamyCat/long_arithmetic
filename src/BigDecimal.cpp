@@ -535,7 +535,7 @@ void BigDecimal::switchSign() {
     this->_sign *= -1;
 }
 
-const std::deque<uint32_t> &BigDecimal::digits() {
+const std::deque<uint32_t> &BigDecimal::chunks() {
     return this->_chunks;
 }
 
