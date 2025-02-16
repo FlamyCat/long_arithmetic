@@ -530,6 +530,10 @@ void BigDecimal::switchSign() {
     this->_sign *= -1;
 }
 
+const std::deque<uint32_t> &BigDecimal::digits() {
+    return this->_chunks;
+}
+
 BigDecimal operator ""_longnum(long double number) {
     std::basic_string<char> binaryString = BigDecimal::toBinary(number);
     BigDecimal bd{binaryString};
