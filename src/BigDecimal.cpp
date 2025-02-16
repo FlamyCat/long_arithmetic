@@ -33,7 +33,11 @@ BigDecimal &BigDecimal::operator+=(BigDecimal &other) {
     auto rhs = &other;
 
     if (lhs->sign() != rhs->sign()) {
-        // TODO: вычитание
+        other.switchSign();
+        *lhs -= *rhs;
+        other.switchSign();
+
+        return *lhs;
     }
 
     auto lhsRight = lhs->size() - lhs->floatingPointPosition();
@@ -517,6 +521,10 @@ BigDecimal &BigDecimal::operator/=(BigDecimal &other) {
     *this = t;
 
     return *this;
+}
+
+void BigDecimal::switchSign() {
+    this->_sign *= -1;
 }
 
 BigDecimal operator ""_longnum(long double number) {

@@ -16,6 +16,8 @@ class BigDecimal {
 
     size_t numberOfBits();
 
+    void switchSign();
+
 public:
     // Constructors
     BigDecimal();
