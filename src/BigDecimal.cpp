@@ -95,7 +95,10 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     auto rhs = &other;
 
     if (lhs->sign() == rhs->sign()) {
+        other.switchSign();
         *lhs += *rhs;
+        other.switchSign();
+
         return *lhs;
     }
 
