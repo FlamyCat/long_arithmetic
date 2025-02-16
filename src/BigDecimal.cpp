@@ -1,6 +1,7 @@
 #include <vector>
 #include "BigDecimal.hpp"
 #include <stdexcept>
+#include <bitset>
 
 union u64 {
     uint64_t value;
@@ -301,6 +302,10 @@ void BigDecimal::setPrecision(size_t newPrecision) {
     this->_floatingPointPosition = newPrecision;
 }
 
+uint32_t strToU32(const std::string& binaryString) {
+    return std::bitset<32>(binaryString).to_ulong();
+}
+
 BigDecimal::BigDecimal(const std::string &s) {
     std::deque<char> sd = reinterpret_cast<const std::deque<char> &>(s);
 
@@ -333,7 +338,7 @@ BigDecimal::BigDecimal(const std::string &s) {
         auto rightBorder = sd.rbegin() + chunkSize;
 
         while (rightBorder < sd.rend()) {
-            this->_chunks.push_back(std::stoul(std::string{leftBorder, rightBorder}));
+            this->_chunks.push_back(strToU32(std::string{leftBorder, rightBorder}));
         }
 
         this->_floatingPointPosition = floatingPointPosition;
