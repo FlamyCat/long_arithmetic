@@ -3,18 +3,7 @@
 
 #include "TestResult.h"
 #include "../src/BigDecimal.hpp"
-
-#define fail return {false, description};
-#define ok return {true, ""};
-#define description(dsc, exp, act) auto description = std::format(R"(dsc + ": expected: "{}", actual: "{}")", exp, act)
-#define faild(dsc, exp, act) description(dsc, exp, act); fail
-#define faildea(dsc, val) faild(dsc, expected##val, actual##val)
-#define check(title, exp, act, dsc) \
-    const auto expected##title = exp; \
-    const auto actual##title = act;   \
-    if (expected##title != actual##title) { \
-        faildea(dsc, title)         \
-    }
+#include "macros.hpp"
 
 TestResult integerFromSingleChunk() {
     BigDecimal bd{"10"};
@@ -106,29 +95,12 @@ TestResult floatingPointNumber() {
 
     auto chunks = bd.chunks();
 
-    const auto expectedNumberOfChunks = 2;
-    const auto actualNumberOfChunks = chunks.size();
-    if (actualNumberOfChunks != expectedNumberOfChunks) {
-        faildea("String constructor produces incorrect number of chunks", NumberOfChunks)
-    }
+    check(NumberOfChunks, 2, chunks.size(), "Incorrect number of chunks")
 
-    const auto expectedSign = -1;
-    const auto actualSign = bd.sign();
-    if (actualSign != expectedSign) {
-        faildea("String constructor produces incorrect sign", Sign)
-    }
+    check(Sign, -1, bd.sign(), "Incorrect sign")
 
-    const auto expectedFirstChunk = 2;
-    const auto actualFirstChunk = chunks[0];
-    if (actualFirstChunk != expectedFirstChunk) {
-        faildea("First chunk doesn't match", FirstChunk)
-    }
-
-    const auto expectedSecondChunk = 3;
-    const auto actualSecondChunk = chunks[1];
-    if (expectedSecondChunk != actualSecondChunk) {
-        faildea("Second chunk doesn't match", SecondChunk)
-    }
+    check(FirstChunk, 2, chunks[0], "First chunk doesn't match")
+    check(SecondChunk, 3, chunks[1], "Second chunk doesn't match")
 
     ok
 }
