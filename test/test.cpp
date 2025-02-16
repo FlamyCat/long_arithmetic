@@ -2,11 +2,7 @@
 #include <functional>
 #include <string>
 #include <format>
-
-struct TestResult {
-    std::string description;
-    bool success;
-};
+#include "TestResult.h"
 
 void runTest(const std::function<TestResult(void)> &testMethod, const std::string &testDescription) {
     std::cout << "Running test " << testDescription << std::endl;
