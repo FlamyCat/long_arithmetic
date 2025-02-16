@@ -301,7 +301,7 @@ void BigDecimal::setPrecision(size_t newPrecision) {
     this->_floatingPointPosition = newPrecision;
 }
 
-BigDecimal::BigDecimal(std::string &s) {
+BigDecimal::BigDecimal(const std::string &s) {
     std::deque<char> sd = reinterpret_cast<const std::deque<char> &>(s);
 
     if (sd.front() == '-') {

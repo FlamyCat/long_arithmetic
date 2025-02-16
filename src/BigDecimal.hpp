@@ -22,7 +22,7 @@ public:
     // Constructors
     BigDecimal();
 
-    explicit BigDecimal(std::string &s);
+    explicit BigDecimal(const std::string &s);
 
     BigDecimal(BigDecimal &other) = default;
 
