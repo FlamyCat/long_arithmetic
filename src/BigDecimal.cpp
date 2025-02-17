@@ -10,6 +10,10 @@ union u64 {
 };
 
 void BigDecimal::trim() {
+    if (size() == 0) {
+        return;
+    }
+
     while (this->_chunks.back() == 0 && this->size() > 0) {
         this->_chunks.pop_back();
     }
