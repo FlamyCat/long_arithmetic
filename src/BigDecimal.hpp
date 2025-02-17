@@ -18,6 +18,8 @@ class BigDecimal {
 
     void switchSign();
 
+    void setNewSize(BigDecimal &number, BigDecimal &lhs, BigDecimal &rhs);
+
 public:
     // Constructors
     BigDecimal();

@@ -14,8 +14,12 @@ void BigDecimal::trim() {
         return;
     }
 
-    while (this->_chunks.back() == 0 && this->size() > 0) {
+    while (this->size() > 0 && this->_chunks.back() == 0) {
         this->_chunks.pop_back();
+    }
+
+    while (this->size() > 0 && this->_chunks.front() == 0) {
+        this->_chunks.pop_front();
     }
 }
 
@@ -46,29 +50,8 @@ BigDecimal &BigDecimal::operator+=(BigDecimal &other) {
         return *lhs;
     }
 
-    auto lhsRight = lhs->size() - lhs->floatingPointPosition();
-    auto rhsRight = rhs->size() - rhs->floatingPointPosition();
-
-    auto setNewSize = [=](BigDecimal *number) {
-        auto right = number->size() - number->floatingPointPosition();
-
-        auto newRight = std::max(lhsRight, rhsRight) - right;
-        auto newLeft =
-                std::max(lhs->floatingPointPosition(), rhs->floatingPointPosition()) - number->floatingPointPosition();
-
-        auto rightDelta = newRight - lhsRight;
-        auto leftDelta = newLeft - number->floatingPointPosition();
-
-        for (int i = 0; i < rightDelta; i++) {
-            number->_chunks.push_back(0);
-        }
-        for (int i = 0; i < leftDelta; i++) {
-            number->_chunks.push_front(0);
-        }
-    };
-
-    setNewSize(lhs);
-    setNewSize(rhs);
+    setNewSize(*lhs, *lhs, *rhs);
+    setNewSize(*rhs, *lhs, *rhs);
 
     uint32_t overflow = 0;
 
@@ -96,11 +79,32 @@ BigDecimal BigDecimal::operator+(BigDecimal &other) {
     return lhs;
 }
 
+void BigDecimal::setNewSize(BigDecimal& number, BigDecimal& lhs, BigDecimal& rhs) {
+    auto lhsIntPartLen = lhs.size() - lhs.floatingPointPosition();
+    auto rhsIntPartLen = rhs.size() - rhs.floatingPointPosition();
+
+    auto intPartLen = number.size() - number.floatingPointPosition();
+
+    auto newIntPartLen = std::max(lhsIntPartLen, rhsIntPartLen);
+    auto newFracPartLen =
+            std::max(lhs.floatingPointPosition(), rhs.floatingPointPosition());
+
+    auto intPartLenDelta = static_cast<long long>(newIntPartLen) - static_cast<long long>(intPartLen);
+    auto fracPartLenDelta = static_cast<long long>(newFracPartLen) - static_cast<long long>(number.floatingPointPosition());
+
+    for (int i = 0; i < intPartLenDelta; i++) {
+        number._chunks.push_back(0);
+    }
+    for (int i = 0; i < fracPartLenDelta; i++) {
+        number._chunks.push_front(0);
+    }
+}
+
 BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     auto lhs = this;
     auto rhs = &other;
 
-    if (lhs->sign() == rhs->sign()) {
+    if (lhs->sign() != rhs->sign()) {
         other.switchSign();
         *lhs += *rhs;
         other.switchSign();
@@ -113,9 +117,12 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     auto rhsSign = rhs->sign();
 
     lhs->_sign *= lhsSign;
-    rhs->_sign += rhsSign;
+    rhs->_sign *= rhsSign;
 
-    bool lrhsSwap = lhs < rhs;
+    setNewSize(*lhs, *lhs, *rhs);
+    setNewSize(*rhs, *lhs, *rhs);
+
+    const bool lrhsSwap = *lhs < *rhs;
     BigDecimal otherCopy{};
     if (lrhsSwap) {
         rhs = lhs;
@@ -124,36 +131,12 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     }
 
     lhs->_sign *= lhsSign;
-    rhs->_sign += rhsSign;
-
-    auto lhsRight = lhs->size() - lhs->floatingPointPosition();
-    auto rhsRight = rhs->size() - rhs->floatingPointPosition();
-
-    auto setNewSize = [=](BigDecimal *number) {
-        auto right = number->size() - number->floatingPointPosition();
-
-        auto newRight = std::max(lhsRight, rhsRight) - right;
-        auto newLeft =
-                std::max(lhs->floatingPointPosition(), rhs->floatingPointPosition()) - number->floatingPointPosition();
-
-        auto rightDelta = newRight - lhsRight;
-        auto leftDelta = newLeft - number->floatingPointPosition();
-
-        for (int i = 0; i < rightDelta; i++) {
-            number->_chunks.push_back(0);
-        }
-        for (int i = 0; i < leftDelta; i++) {
-            number->_chunks.push_front(0);
-        }
-    };
-
-    setNewSize(lhs);
-    setNewSize(rhs);
+    rhs->_sign *= rhsSign;
 
     std::vector<int64_t> borrowed(lhs->size());
 
     for (int i = 0; i < lhs->size(); ++i) {
-        if (lhs->_chunks[i] + borrowed[i] < rhs->_chunks[i]) {
+        if (lhs->_chunks[i] + borrowed[i] >= rhs->_chunks[i]) {
             lhs->_chunks[i] += borrowed[i] - rhs->_chunks[i];
 
             continue;
@@ -179,7 +162,11 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
 
     if (lrhsSwap) {
         *this = otherCopy;
+        this->switchSign();
     }
+
+    lhs->trim();
+    rhs->trim();
 
     return *this;
 }
@@ -233,6 +220,16 @@ std::strong_ordering BigDecimal::operator<=>(BigDecimal &other) {
     }
     //endregion
 
+    //region Integer part comparison
+    for (auto lhsDigitIter = lhs->chunks().rbegin(), rhsDigitIter = rhs->chunks().rbegin();
+         lhs->chunks().rend() - lhsDigitIter > lhs->floatingPointPosition();
+         lhsDigitIter++, rhsDigitIter++) {
+        if (*lhsDigitIter != *rhsDigitIter) {
+            return *lhsDigitIter <=> *rhsDigitIter;
+        }
+    }
+    //endregion
+
     //region Floating point position comparison
     if (lhs->floatingPointPosition() < rhs->floatingPointPosition()) {
         return std::strong_ordering::greater;
@@ -243,7 +240,7 @@ std::strong_ordering BigDecimal::operator<=>(BigDecimal &other) {
     }
     //endregion
 
-    for (auto i = lhs->size(); i > 0; i++) {
+    for (auto i = lhs->size(); i > 0; i--) {
         if (lhs->_chunks[i] != rhs->_chunks[i]) {
             return lhs->_chunks[i] <=> rhs->_chunks[i];
         }
@@ -316,8 +313,9 @@ BigDecimal::BigDecimal(const std::string &s) {
     std::deque<char> sd{s.rbegin(), s.rend()};
 
     //region Floating point position initialization
-    auto fpp = s.size() - s.find('.') - 1;
+    auto fpp = s.find('.');
     if (fpp != std::string::npos) {
+        fpp = s.size() - s.find('.') - 1;
         sd.erase(sd.begin() + fpp); // NOLINT(*-narrowing-conversions)
 
         auto rem = fpp % chunkSize;

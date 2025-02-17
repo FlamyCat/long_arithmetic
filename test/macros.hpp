@@ -3,6 +3,7 @@
 
 #include <format>
 #include <iostream>
+#include "TestResult.h"
 
 #define fail return {false, description};
 #define ok return {true, ""};
