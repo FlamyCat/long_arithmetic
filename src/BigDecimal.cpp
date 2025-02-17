@@ -1,7 +1,8 @@
-#include <vector>
 #include "BigDecimal.hpp"
-#include <stdexcept>
+#include <algorithm>
 #include <bitset>
+#include <stdexcept>
+#include <vector>
 
 union u64 {
     uint64_t value;
@@ -307,57 +308,55 @@ uint32_t strToU32(const std::string& binaryString) {
 }
 
 BigDecimal::BigDecimal(const std::string &s) {
-    std::deque<char> sd = reinterpret_cast<const std::deque<char> &>(s);
+    std::deque<char> sd{s.rbegin(), s.rend()};
 
-    if (sd.front() == '-') {
-        this->_sign = -1;
-        sd.pop_front();
-    }
+    //region Floating point position initialization
+    auto fpp = s.size() - s.find('.') - 1;
+    if (fpp != std::string::npos) {
+        sd.erase(sd.begin() + fpp); // NOLINT(*-narrowing-conversions)
 
-    auto floatingPointPosition = s.find('.', 0);
-    sd.erase(sd.begin() + floatingPointPosition);
+        auto rem = fpp % chunkSize;
+        auto padding = rem == 0 ? 0 : chunkSize - rem;
 
-    if (floatingPointPosition != std::string::npos) {
-        auto left = floatingPointPosition;
-        if (left % chunkSize != 0) {
-            for (int i = 0; i < chunkSize - left % chunkSize; ++i) {
-                sd.push_front('0');
-            }
+        for (int i = 0; i < padding; ++i) {
+            sd.push_front('0');
         }
 
-        auto right = sd.size() - floatingPointPosition;
-        if (right % chunkSize != 0) {
-            for (int i = 0; i < chunkSize - right % chunkSize; ++i) {
-                sd.push_back('0');
-            }
-        }
-
-        this->_chunks = std::deque<uint32_t>();
-
-        auto leftBorder = sd.rbegin();
-        auto rightBorder = sd.rbegin() + chunkSize;
-
-        while (rightBorder < sd.rend()) {
-            this->_chunks.push_back(strToU32(std::string{leftBorder, rightBorder}));
-        }
-
-        this->_floatingPointPosition = floatingPointPosition;
+        fpp += padding;
+        this->_floatingPointPosition = fpp / 32;
     } else {
         this->_floatingPointPosition = 0;
-
-        if (sd.size() % chunkSize != 0) {
-            for (int i = 0; i < chunkSize - sd.size() % chunkSize; ++i) {
-                sd.push_back('0');
-            }
-        }
-
-        auto leftBorder = sd.rbegin();
-        auto rightBorder = sd.rbegin() + chunkSize;
-
-        while (rightBorder < sd.rend()) {
-            this->_chunks.push_back(std::stoul(std::string{leftBorder, rightBorder}));
-        }
     }
+    //endregion
+
+    //region Sign initialization
+    if (sd.back() == '-') {
+        this->_sign = -1;
+        sd.pop_back();
+    } else {
+        this->_sign = 1;
+    }
+    //endregion
+
+    //region Adding padding
+    auto rem = sd.size() % chunkSize;
+    auto padding = rem == 0 ? 0 : chunkSize - rem;
+
+    for (int i = 0; i < padding; ++i) {
+        sd.push_back('0');
+    }
+    //endregion
+
+    //region Chunk conversion
+    for (int offset = 0; offset < sd.size(); offset += chunkSize) {
+        auto left = sd.begin() + offset;
+        auto right = left + chunkSize;
+
+        auto chunk = strBeToU32(std::string{left, right});
+
+        this->_chunks.push_back(chunk);
+    }
+    //endregion
 }
 
 BigDecimal &BigDecimal::operator*=(BigDecimal &other) {
