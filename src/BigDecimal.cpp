@@ -44,9 +44,9 @@ BigDecimal &BigDecimal::operator+=(BigDecimal &other) {
     auto rhs = &other;
 
     if (lhs->sign() != rhs->sign()) {
-        other.switchSign();
+        other.flipSign();
         *lhs -= *rhs;
-        other.switchSign();
+        other.flipSign();
 
         return *lhs;
     }
@@ -110,9 +110,9 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     auto rhs = &other;
 
     if (lhs->sign() != rhs->sign()) {
-        other.switchSign();
+        other.flipSign();
         *lhs += *rhs;
-        other.switchSign();
+        other.flipSign();
 
         return *lhs;
     }
@@ -167,7 +167,7 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
 
     if (lrhsSwap) {
         *this = otherCopy;
-        this->switchSign();
+        this->flipSign();
     }
 
     lhs->trim();
@@ -462,6 +462,12 @@ BigDecimal BigDecimal::operator/(BigDecimal &other) {
     lhs->trim();
     rhs->trim();
 
+    const auto lhsSign = lhs->sign();
+    const auto rhsSign = rhs->sign();
+
+    lhs->_sign *= lhs->_sign;
+    rhs->_sign *= rhs->_sign;
+
     auto zero = BigDecimal{};
     if (*rhs == zero) {
         throw std::invalid_argument("Divisor must not be zero");
@@ -472,13 +478,14 @@ BigDecimal BigDecimal::operator/(BigDecimal &other) {
 
     const auto numberOfBitsInLhs = lhs->numberOfBits();
 
-    for (int64_t i = numberOfBitsInLhs - 1; i >= 0; ++i) {
-        remainder.pushBitFront(lhs->getBit(i));
+    for (int64_t i = numberOfBitsInLhs - 1; i >= 0; --i) {
+        const auto bit = lhs->getBit(i);
+        remainder.pushBitFront(bit);
 
         if (remainder >= *rhs) {
             remainder -= *rhs;
-            remainder.trim();
             result.pushBitFront(1);
+            continue;
         }
 
         result.pushBitFront(0);
@@ -489,14 +496,16 @@ BigDecimal BigDecimal::operator/(BigDecimal &other) {
     auto deltaFpp = (int64_t) lhs->floatingPointPosition() - (int64_t) rhs->floatingPointPosition();
     if (deltaFpp < 0) {
         for (int i = 0; i < std::abs(deltaFpp); ++i) {
-            result._chunks.push_back(0);
+            result._chunks.push_front(0);
         }
 
         deltaFpp = 0;
     }
 
     result._floatingPointPosition = deltaFpp;
-    result._sign = lhs->sign() * rhs->sign();
+    result._sign = lhsSign * rhsSign;
+
+    rhs->_sign = rhsSign;
 
     return result;
 }
@@ -505,18 +514,17 @@ uint32_t BigDecimal::getBit(size_t index) {
     auto chunkIndex = index / chunkSize;
     auto bitIndex = index % 32;
 
+    if (this->chunks().empty()) {
+        this->_chunks.push_back(0);
+    }
+
     return ((1 << bitIndex) & this->_chunks[chunkIndex]) >> bitIndex;
 }
 
 void BigDecimal::pushBitFront(uint32_t bitValue) {
-    // We want to keep the overflow. Thus, we add another chunk when overflow occurs
-    if (this->_chunks.back() & (1 << chunkSize - 1)) {
-        this->_chunks.push_back(0);
-    }
+    *this <<= 1;
 
-    for (auto i = this->numberOfBits(); i > 0; i--) {
-        this->setBit(i - 1, this->getBit(i - 2));
-    }
+    this->_chunks[0] |= (bitValue & this->getBit(1) | bitValue);
 }
 
 size_t BigDecimal::numberOfBits() {
@@ -527,7 +535,7 @@ void BigDecimal::setBit(size_t index, uint32_t value) {
     auto chunkIndex = index / chunkSize;
     auto bitIndex = index % 32;
 
-    auto mask = 1 << bitIndex;
+    auto mask = (1 & value) << bitIndex;
 
     this->_chunks[chunkIndex] |= mask;
 }
@@ -539,12 +547,45 @@ BigDecimal &BigDecimal::operator/=(BigDecimal &other) {
     return *this;
 }
 
-void BigDecimal::switchSign() {
+void BigDecimal::flipSign() {
     this->_sign *= -1;
 }
 
 const std::deque<uint32_t> &BigDecimal::chunks() {
     return this->_chunks;
+}
+
+BigDecimal &BigDecimal::operator<<=(int shift) {
+    if (this->size() == 0) {
+        this->_chunks.push_back(0);
+    }
+
+    auto getOverflow = [=](uint32_t chunk) {
+        return chunk >> (chunkSize - shift);
+    };
+
+    auto firstOverflow = getOverflow(*chunks().rbegin());
+    if (firstOverflow != 0) {
+        _chunks.push_back(firstOverflow);
+    }
+
+    for (auto i = this->size(); i > 0; --i) {
+        auto overflow = getOverflow(chunks()[i - 1]);
+        _chunks[i] <<= shift;
+        _chunks[i] |= overflow;
+    }
+
+    _chunks[0] <<= shift;
+
+    return *this;
+}
+
+BigDecimal &BigDecimal::operator=(BigDecimal &other) {
+    _chunks = other.chunks();
+    _sign = other.sign();
+    _floatingPointPosition = other.floatingPointPosition();
+
+    return *this;
 }
 
 BigDecimal operator ""_longnum(long double number) {

@@ -16,7 +16,7 @@ class BigDecimal {
 
     size_t numberOfBits();
 
-    void switchSign();
+    void flipSign();
 
     void setNewSize(BigDecimal &number, BigDecimal &lhs, BigDecimal &rhs);
 
@@ -46,7 +46,7 @@ public:
     BigDecimal &operator/=(BigDecimal &other);
 
     // Assignment
-    BigDecimal &operator=(BigDecimal &other) = default;
+    BigDecimal &operator=(BigDecimal &other);
 
     // Comparison operators
     std::strong_ordering operator<=>(BigDecimal &other);
@@ -63,6 +63,8 @@ public:
 
     // Bits manipulation
     [[nodiscard]] uint32_t getBit(size_t index);
+
+    BigDecimal& operator<<=(int shift);
 
     void setBit(size_t index, uint32_t value);
 
