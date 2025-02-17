@@ -29,7 +29,8 @@
 
 #define testMethod(title, body)                                            \
     {                                                                      \
-        std::cout << "Running test " << #title << " : ";                   \
+        std::cout << "Running test \"" << #title << "\": ";          \
+        std::cout.flush();                                                 \
         TestResult _res = ([]() -> TestResult body)();                     \
         if (_res.success) {                                                \
             std::cout << "OK" << std::endl;                                \
