@@ -307,7 +307,8 @@ void BigDecimal::setPrecision(size_t newPrecision) {
     this->_floatingPointPosition = newPrecision;
 }
 
-uint32_t strToU32(const std::string& binaryString) {
+uint32_t strBeToU32(std::string binaryString) {
+    std::ranges::reverse(binaryString);
     return std::bitset<32>(binaryString).to_ulong();
 }
 
