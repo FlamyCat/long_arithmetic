@@ -3,10 +3,14 @@
 #include "macros.hpp"
 #include <bitset>
 
+std::string makeChunk(int digit) {
+    return std::bitset<32>(digit).to_string();
+}
+
 testGroup(Addition, {
     testMethod(emptyAddEmpty, {
-            auto lhs = BigDecimal();
-            auto rhs = BigDecimal();
+            BigDecimal lhs;
+            BigDecimal rhs;
 
             lhs += rhs;
 
@@ -20,8 +24,8 @@ testGroup(Addition, {
     })
 
     testMethod(intAddEmpty, {
-            auto lhs = 1.0_longnum;
-            auto rhs = BigDecimal();
+            BigDecimal lhs("1");
+            BigDecimal rhs;
 
             lhs += rhs;
 
@@ -37,9 +41,8 @@ testGroup(Addition, {
     })
 
     testMethod(negativeIntAddEmpty, {
-            BigDecimal lhs{ "-1.0" };
-
-            auto rhs = BigDecimal();
+            BigDecimal lhs("-1");
+            BigDecimal rhs;
 
             lhs += rhs;
 
@@ -55,9 +58,8 @@ testGroup(Addition, {
     })
 
     testMethod(floatAddEmpty, {
-            auto lhs = 1.2_longnum;
-
-            auto rhs = BigDecimal();
+            BigDecimal lhs(makeChunk(1) + "." + makeChunk(2));
+            BigDecimal rhs;
 
             lhs += rhs;
 
@@ -67,15 +69,15 @@ testGroup(Addition, {
             check(LhsSize, 2, lhs.size(), "Lhs size changed")
             check(RhsSize, 0, rhs.size(), "Rhs size changed")
 
-            check(LhsFirstChunk, 1, lhs.chunks()[0], "Lhs first chunk changed")
-            check(LhsSecondChunk, 2, lhs.chunks()[1], "Lhs second chunk changed")
+            check(LhsFirstChunk, 2, lhs.chunks()[0], "Lhs first chunk changed")
+            check(LhsSecondChunk, 1, lhs.chunks()[1], "Lhs second chunk changed")
 
             ok
     })
 
     testMethod(floatAddFloatSamePrecision, {
-            auto lhs = 1.2_longnum;
-            auto rhs = 3.1_longnum;
+            BigDecimal lhs("1." + makeChunk(2));
+            BigDecimal rhs(makeChunk(3) + "." + makeChunk(1));
 
             lhs += rhs;
 
@@ -89,14 +91,14 @@ testGroup(Addition, {
             check(LhsFloatPart, 3, lhs.chunks()[0], "Lhs: incorrect float part")
 
             check(RhsIntPart, 3, rhs.chunks()[1], "Rhs: incorrect int part")
-            check(RhsFloatPart, 1, lhs.chunks()[0], "Rhs: incorrect float part")
+            check(RhsFloatPart, 1, rhs.chunks()[0], "Rhs: incorrect float part")
 
             ok
     })
 
     testMethod(floatAddLhsMorePrecise, {
-            auto lhs = 1.21_longnum;
-            auto rhs = 1.1_longnum;
+            BigDecimal lhs("1." + makeChunk(2) + makeChunk(1));
+            BigDecimal rhs("1." + makeChunk(1));
 
             lhs += rhs;
 
@@ -110,8 +112,8 @@ testGroup(Addition, {
     })
 
     testMethod(floatAddRhsMorePrecise, {
-            auto lhs = 1.1_longnum;
-            auto rhs = 1.21_longnum;
+            BigDecimal lhs("1." + makeChunk(1));
+            BigDecimal rhs("1." + makeChunk(2) + makeChunk(1));
 
             lhs += rhs;
 
@@ -125,8 +127,8 @@ testGroup(Addition, {
     })
 
     testMethod(differentSignAdditionBecomesSubtraction, {
-            auto lhs = 1.3_longnum;
-            auto rhs = BigDecimal("-0.1");
+            BigDecimal lhs("1." + makeChunk(3));
+            auto rhs = BigDecimal("-0." + makeChunk(1));
 
             lhs += rhs;
 
@@ -144,12 +146,14 @@ testGroup(Addition, {
             auto lhs = BigDecimal(lhsVal);
             auto rhs = 1.0_longnum;
 
+            lhs += rhs;
+
             lhsRhsCheck(Size, 2, 1, size(), "incorrect size")
 
             lhsRhsCheck(Sign, 1, 1, sign(), "incorrect sign")
 
-            lhsRhsCheck(FirstChunk, 0, 0, chunks()[0], "incorrect first chunk")
-            lhsRhsCheck(SecondChunk, 1, 1, chunks()[1], "incorrect second chunk")
+            lhsRhsCheck(FirstChunk, 0, 1, chunks()[0], "incorrect first chunk")
+            check(LhsSecondChunk, 1, lhs.chunks()[1], "Lhs: incorrect second chunk")
 
             ok
     })

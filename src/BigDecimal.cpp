@@ -18,8 +18,9 @@ void BigDecimal::trim() {
         this->_chunks.pop_back();
     }
 
-    while (this->size() > 0 && this->_chunks.front() == 0) {
+    while (this->size() > 0 && this->_chunks.front() == 0 && this->_floatingPointPosition > 0) {
         this->_chunks.pop_front();
+        _floatingPointPosition--;
     }
 }
 
@@ -68,6 +69,9 @@ BigDecimal &BigDecimal::operator+=(BigDecimal &other) {
         lhs->_chunks.emplace_back(overflow);
     }
 
+    lhs->trim();
+    rhs->trim();
+
     return *lhs;
 }
 
@@ -97,6 +101,7 @@ void BigDecimal::setNewSize(BigDecimal& number, BigDecimal& lhs, BigDecimal& rhs
     }
     for (int i = 0; i < fracPartLenDelta; i++) {
         number._chunks.push_front(0);
+        number._floatingPointPosition++;
     }
 }
 
