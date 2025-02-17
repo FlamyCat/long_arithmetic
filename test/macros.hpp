@@ -8,7 +8,7 @@
 #define ok return {true, ""};
 
 #define description(dsc, exp, act) \
-    auto description = dsc + std::format(": expected: \"{}\", actual: \"{}\"", exp, act)
+    auto description = dsc + std::format(": \n\texpected: \"{}\", \n\tactual: \"{}\"", exp, act)
 
 #define faild(dsc, exp, act) \
     description(dsc, exp, act); fail
@@ -44,7 +44,7 @@
     void test##title() {                                                              \
         const std::string _sep = "===============================================\n"; \
         std::cout << _sep;                                                            \
-        std::cout << "Running " << #title << " test group";                           \
+        std::cout << "Running \"" << #title << "\" test group\n";                     \
         std::cout << _sep;                                                            \
         body                                                                          \
     }
