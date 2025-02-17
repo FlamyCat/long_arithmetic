@@ -27,7 +27,7 @@
     check(Lhs##title, lhsExp, lhs.act, (std::string)"Lhs: " + (std::string)dsc)             \
     check(Rhs##title, rhsExp, rhs.act, (std::string)"Rhs: " + (std::string)dsc)             \
 
-#define test(title, body)                                                  \
+#define testMethod(title, body)                                            \
     {                                                                      \
         std::cout << "Running test " << #title << " : ";                   \
         TestResult _res = ([]() -> TestResult body)();                     \

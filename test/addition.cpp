@@ -4,7 +4,7 @@
 #include <bitset>
 
 testGroup(Addition, {
-    test(emptyAddEmpty, {
+    testMethod(emptyAddEmpty, {
             auto lhs = BigDecimal();
             auto rhs = BigDecimal();
 
@@ -19,7 +19,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(intAddEmpty, {
+    testMethod(intAddEmpty, {
             auto lhs = 1.0_longnum;
             auto rhs = BigDecimal();
 
@@ -36,7 +36,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(negativeIntAddEmpty, {
+    testMethod(negativeIntAddEmpty, {
             BigDecimal lhs{ "-1.0" };
 
             auto rhs = BigDecimal();
@@ -54,7 +54,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(floatAddEmpty, {
+    testMethod(floatAddEmpty, {
             auto lhs = 1.2_longnum;
 
             auto rhs = BigDecimal();
@@ -73,7 +73,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(floatAddFloatSamePrecision, {
+    testMethod(floatAddFloatSamePrecision, {
             auto lhs = 1.2_longnum;
             auto rhs = 3.1_longnum;
 
@@ -94,7 +94,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(floatAddLhsMorePrecise, {
+    testMethod(floatAddLhsMorePrecise, {
             auto lhs = 1.21_longnum;
             auto rhs = 1.1_longnum;
 
@@ -109,7 +109,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(floatAddRhsMorePrecise, {
+    testMethod(floatAddRhsMorePrecise, {
             auto lhs = 1.1_longnum;
             auto rhs = 1.21_longnum;
 
@@ -124,7 +124,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(differentSignAdditionBecomesSubtraction, {
+    testMethod(differentSignAdditionBecomesSubtraction, {
             auto lhs = 1.3_longnum;
             auto rhs = BigDecimal("-0.1");
 
@@ -138,7 +138,7 @@ testGroup(Addition, {
             ok
     })
 
-    test(overflowWorksCorrectly, {
+    testMethod(overflowWorksCorrectly, {
             auto lhsVal = std::to_string(UINT32_MAX - 1);
 
             auto lhs = BigDecimal(lhsVal);
