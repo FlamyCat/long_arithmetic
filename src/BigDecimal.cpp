@@ -388,7 +388,8 @@ BigDecimal &BigDecimal::operator*=(BigDecimal &other) {
         for (int j = 0; j < lhs->size(); ++j) {
             u64 t;
             t.value = tempResult._chunks[j];
-            tempResult._chunks[i] = t.chunks[0] + overflow;
+            t.value = t.value * rhs->chunks()[i] + overflow;
+            tempResult._chunks[j] = t.chunks[0];
             overflow = t.chunks[1];
         }
 
