@@ -50,4 +50,7 @@
         body                                                                          \
     }
 
+#define skip(body) \
+    if (0) { body }
+
 #endif //LONG_ARITHMETIC_MACROS_HPP
