@@ -588,6 +588,12 @@ BigDecimal &BigDecimal::operator=(BigDecimal &other) {
     return *this;
 }
 
+BigDecimal::BigDecimal(BigDecimal &other) {
+    _floatingPointPosition = other._floatingPointPosition;
+    _chunks = std::deque<uint32_t> {other._chunks.begin(), other._chunks.end()};
+    _sign = other._sign;
+}
+
 BigDecimal operator ""_longnum(long double number) {
     std::basic_string<char> binaryString = BigDecimal::toBinary(number);
     BigDecimal bd{binaryString};

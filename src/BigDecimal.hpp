@@ -26,7 +26,7 @@ public:
 
     explicit BigDecimal(const std::string &s);
 
-    BigDecimal(BigDecimal &other) = default;
+    BigDecimal(BigDecimal &other);
 
     // Math operators
     BigDecimal operator+(BigDecimal &other);
