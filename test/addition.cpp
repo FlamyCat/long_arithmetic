@@ -141,7 +141,7 @@ testGroup(Addition, {
     })
 
     testMethod(overflowWorksCorrectly, {
-            auto lhsVal = std::to_string(UINT32_MAX - 1);
+            auto lhsVal = makeChunk(UINT32_MAX);
 
             auto lhs = BigDecimal(lhsVal);
             auto rhs = 1.0_longnum;

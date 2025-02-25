@@ -124,9 +124,6 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
     lhs->_sign *= lhsSign;
     rhs->_sign *= rhsSign;
 
-    setNewSize(*lhs, *lhs, *rhs);
-    setNewSize(*rhs, *lhs, *rhs);
-
     const bool lrhsSwap = *lhs < *rhs;
     BigDecimal otherCopy{};
     if (lrhsSwap) {
@@ -137,6 +134,9 @@ BigDecimal &BigDecimal::operator-=(BigDecimal &other) {
 
     lhs->_sign *= lhsSign;
     rhs->_sign *= rhsSign;
+
+    setNewSize(*lhs, *lhs, *rhs);
+    setNewSize(*rhs, *lhs, *rhs);
 
     std::vector<int64_t> borrowed(lhs->size());
 

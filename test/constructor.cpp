@@ -6,7 +6,7 @@
 #include "macros.hpp"
 
 testGroup(Constructor, {
-    skip(testMethod(integerFromSingleChunk, {
+    testMethod(integerFromSingleChunk, {
             BigDecimal bd{ "10" };
 
             auto chunks = bd.chunks();
@@ -16,9 +16,9 @@ testGroup(Constructor, {
             check(Chunk, 2, bd.chunks()[0], "Incorrect chunk")
 
             ok
-    }))
+    })
 
-    skip(testMethod(integerFromMultipleChunks, {
+    testMethod(integerFromMultipleChunks, {
             auto bitset = std::bitset<33>(1);
             bitset <<= 32;
 
@@ -34,9 +34,9 @@ testGroup(Constructor, {
             check(SecondChunk, 1, chunks[1], "Incorrect second chunk")
 
             ok
-    }))
+    })
 
-    skip(testMethod(negativeInteger, {
+    testMethod(negativeInteger, {
             auto str = '-' + (std::bitset<33>(1) << 32).to_string();
 
             BigDecimal bd{ str };
@@ -49,9 +49,9 @@ testGroup(Constructor, {
             check(SecondChunk, 1, chunks[1], "Incorrect second chunk")
 
             ok
-    }))
+    })
 
-    skip(testMethod(floatingPointNumber, {
+    testMethod(floatingPointNumber, {
             const auto intPart = "-11.";
             auto floatPart = std::bitset<32>(2).to_string();
 
@@ -71,5 +71,5 @@ testGroup(Constructor, {
             check(SecondChunk, 3, chunks[1], "Second chunk doesn't match")
 
             ok
-    }))
+    })
 })

@@ -66,9 +66,8 @@ testGroup(Subtraction, {
 
             lhs -= rhs;
 
-            lhsRhsCheck(Size, 2, 2, size(), "Incorrect size")
-            lhsRhsCheck(FirstChunk, 0, 0, chunks()[0], "Incorrect first chunk")
-            lhsRhsCheck(SecondChunk, 1, 1, chunks()[1], "Incorrect second chunk")
+            lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
+            lhsRhsCheck(FirstChunk, 1, 1, chunks()[0], "Incorrect first chunk")
 
             ok
     })
