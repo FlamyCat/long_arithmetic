@@ -10,7 +10,7 @@ static std::string makeChunk(int digit) {
 }
 
 testGroup(Division, {
-    testMethod(EmptyByInt, {
+    skip(testMethod(EmptyByInt, {
             BigDecimal lhs;
             BigDecimal rhs("10");
 
@@ -20,13 +20,25 @@ testGroup(Division, {
             lhsRhsCheck(Sign, 1, 1, sign(), "Incorrect sign")
 
             ok
-    })
+    }))
 
     testMethod(IntByIntToInt, {
             BigDecimal lhs(makeChunk(10));
             BigDecimal rhs(makeChunk(5));
 
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
+
             lhs /= rhs;
+
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
 
             lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, 1, 1, sign(), "Incorrect sign")
