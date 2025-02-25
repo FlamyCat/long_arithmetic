@@ -75,6 +75,8 @@ public:
 
     void trim();
 
+    void binaryDisplay();
+
     // Accessors
     [[nodiscard]] signed char sign() const;
 

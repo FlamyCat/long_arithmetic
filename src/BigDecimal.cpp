@@ -3,6 +3,7 @@
 #include <bitset>
 #include <stdexcept>
 #include <vector>
+#include <iostream>
 
 union u64 {
     uint64_t value;
@@ -592,6 +593,35 @@ BigDecimal::BigDecimal(BigDecimal &other) {
     _floatingPointPosition = other._floatingPointPosition;
     _chunks = std::deque<uint32_t> {other._chunks.begin(), other._chunks.end()};
     _sign = other._sign;
+}
+
+static std::string u32ToBin(uint32_t n) {
+    return std::bitset<32>(n).to_string();
+}
+
+void BigDecimal::binaryDisplay() {
+    auto intPartSize = size() - floatingPointPosition();
+
+    if (_sign == -1) {
+        std::cout << "-";
+    }
+
+    auto rb = _chunks.rbegin();
+    for (int i = 0; i < intPartSize; ++i) {
+        std::cout << u32ToBin(*rb);
+        ++rb;
+    }
+
+    if (_floatingPointPosition == 0) {
+        return;
+    }
+
+    std::cout << ".";
+
+    for (int i = 0; i < floatingPointPosition(); ++i) {
+        std::cout << u32ToBin(*rb);
+        ++rb;
+    }
 }
 
 BigDecimal operator ""_longnum(long double number) {
