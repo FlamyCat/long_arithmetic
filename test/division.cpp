@@ -26,6 +26,7 @@ testGroup(Division, {
             BigDecimal lhs(makeChunk(10));
             BigDecimal rhs(makeChunk(5));
 
+            std::cout << std::endl;
             std::cout << "Lhs:\n\t";
             lhs.binaryDisplay();
             std::cout << std::endl;
@@ -54,7 +55,20 @@ testGroup(Division, {
             BigDecimal lhs(makeChunk(5));
             BigDecimal rhs(makeChunk(2));
 
+            std::cout << std::endl;
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
+
             lhs /= rhs;
+
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
 
             lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, 1, 1, sign(), "Incorrect sign")
@@ -70,7 +84,23 @@ testGroup(Division, {
             BigDecimal lhs("1");
             BigDecimal rhs("0." + makeChunk(1));
 
+//            std::cout << "\nResult (lhs):\n\t";
+//            lhs.binaryDisplay();
+//            std::cout << "\n";
+
+            std::cout << std::endl;
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
             lhs /= rhs;
+
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
 
             lhsRhsCheck(Size, 2, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, 1, 1, sign(), "Incorrect sign")
@@ -85,7 +115,19 @@ testGroup(Division, {
             BigDecimal lhs("1");
             BigDecimal rhs("-1");
 
+            std::cout << std::endl;
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
             lhs /= rhs;
+
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
 
             lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, -1, -1, sign(), "Incorrect sign")
@@ -99,7 +141,20 @@ testGroup(Division, {
             BigDecimal lhs("-1");
             BigDecimal rhs("1");
 
+
+            std::cout << std::endl;
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
             lhs /= rhs;
+
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
 
             lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, -1, 1, sign(), "Incorrect sign")
@@ -113,8 +168,22 @@ testGroup(Division, {
             BigDecimal lhs("-1");
             BigDecimal rhs("-1");
 
+//            lhs /= rhs;
+
+            std::cout << std::endl;
+            std::cout << "Lhs:\n\t";
+            lhs.binaryDisplay();
+            std::cout << std::endl;
+
+            std::cout << "Rhs:\n\t";
+            rhs.binaryDisplay();
+            std::cout << std::endl;
+
             lhs /= rhs;
 
+            std::cout << "\nResult (lhs):\n\t";
+            lhs.binaryDisplay();
+            std::cout << "\n";
             lhsRhsCheck(Size, 1, 1, size(), "Incorrect size")
             lhsRhsCheck(Sign, 1, -1, sign(), "Incorrect sign")
 
